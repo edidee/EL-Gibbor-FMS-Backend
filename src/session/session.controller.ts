@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from '@nestjs/common';
 import { SessionService } from './session.service';
 import { CreateSessionDto } from './dto/create-session.dto';
 import { UpdateSessionDto } from './dto/update-session.dto';
@@ -9,26 +9,22 @@ export class SessionController {
 
   @Post()
   create(@Body() createSessionDto: CreateSessionDto) {
-    return this.sessionService.create(createSessionDto);
+    return this.sessionService.createSession(createSessionDto);
   }
 
-  @Get()
-  findAll() {
-    return this.sessionService.findAll();
+  @Get('get:sessionName')
+  getSessionBySessionName(@Param('sessionName') sessionName:string  ) {
+    return this.sessionService.getSessionBySesssionName(sessionName);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.sessionService.findOne(+id);
+  @Get('/get-all-session')
+  getAllSeesion() {
+    return this.sessionService.getAllSessions();
   }
 
-  @Patch(':id')
+  @Put('/updatesession/:id')
   update(@Param('id') id: string, @Body() updateSessionDto: UpdateSessionDto) {
-    return this.sessionService.update(+id, updateSessionDto);
+    return this.sessionService.updateSessionUodate(+id, updateSessionDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.sessionService.remove(+id);
-  }
 }

@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, Inject, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Inject, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
 import { DATABASE_CONNECTION } from 'src/database/database-connection';
@@ -18,7 +18,7 @@ export class StudentService {
     const student = await this.db.
                       select()
                       .from(schema.students)
-                      .where(eq(schema.students.admission_number, dto.admission_number))
+                      .where(eq(schema.students.admissionNumber, dto.admission_number))
                       .execute();
                       
     if (student.length > 0){
@@ -28,11 +28,11 @@ export class StudentService {
     const created = await this.db
                               .insert(schema.students)
                               .values({
-                                first_name: dto.first_name,
-                                last_name: dto.last_name,
-                                admission_number: admission_no,
-                                guardian_name: dto.guardian_name,
-                                guardian_phone_number: dto.guardian_phone_number
+                                firstName: dto.first_name,
+                                lastName: dto.last_name,
+                                admissionNumber: admission_no,
+                                guardianName: dto.guardian_name,
+                                guardianPhoneNumber: dto.guardian_phone_number
                               })
                               .returning();
     
@@ -44,47 +44,67 @@ export class StudentService {
    }
 
   async findStudentByAdmissionNumber(admissionNumber: string) {
-    const student = await this.db.
-                      select()
+    const student = await this.db
+                      .select()
                       .from(schema.students)
-                      .where(eq(schema.students.admission_number, admissionNumber))
+                      .where(eq(schema.students.admissionNumber, admissionNumber))
                       .execute();
     if(student.length > 0 ){
       return student;
     } else{
-      throw new BadRequestException(`Student with ${admissionNumber} doesn't exist`)
+      throw new NotFoundException(`Student with ${admissionNumber} doesn't exist`)
     }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} student`;
+
+
+  async updateStudent(id: number, dto: UpdateStudentDto) {
+
+      const student = await this.db
+                      .select()
+                      .from(schema.students)
+                      .where(eq(schema.students.id, id!))
+                      .execute();
+
+      if (student.length < 0){
+        throw new NotFoundException(`No student with ${id}`)
+      }
+    
+      const updated = await this.db
+                              .update(schema.students)
+                              .set({
+                                guardianName: dto.guardian_name,
+                                guardianPhoneNumber: dto.guardian_phone_number
+                              })
+                              .where(eq(schema.students.admissionNumber, dto.admission_number))
+                              .returning();
+      if (updated.length > 0){
+        return updated;
+      } else{
+          throw new InternalServerErrorException('Failed to create student record');
+      }
+
   }
 
-  update(id: number, updateStudentDto: UpdateStudentDto) {
-    return `This action updates a #${id} student`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} student`;
-  }
+ 
   
-  async  generateAdmissionNumber(): Promise<string> {
+  private async  generateAdmissionNumber(): Promise<string> {
   
-  const latest = await this.db
-    .select({ admissionNumber: schema.students.admission_number })
-    .from(schema.students)
-    .orderBy(desc(schema.students.admission_number))
-    .limit(1);
+    const latest = await this.db
+      .select({ admissionNumber: schema.students.admissionNumber })
+      .from(schema.students)
+      .orderBy(desc(schema.students.admissionNumber))
+      .limit(1);
 
-  const currentYear = new Date().getFullYear();
-  const prefix = `ELG${currentYear}`;
+    const currentYear = new Date().getFullYear();
+    const prefix = `ELG${currentYear}`;
 
-  let nextNumber = 1;
+    let nextNumber = 1;
 
-  if (latest.length > 0 && latest[0].admissionNumber?.startsWith(prefix)) {
-    const last = latest[0].admissionNumber;
-    const numericPart = parseInt(last.slice(prefix.length), 10);
-    nextNumber = numericPart + 1;
+    if (latest.length > 0 && latest[0].admissionNumber?.startsWith(prefix)) {
+      const last = latest[0].admissionNumber;
+      const numericPart = parseInt(last.slice(prefix.length), 10);
+      nextNumber = numericPart + 1;
   }
 
   const padded = String(nextNumber).padStart(4, '0');
