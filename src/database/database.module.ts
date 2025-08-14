@@ -3,8 +3,13 @@ import { DATABASE_CONNECTION } from './database-connection';
 import { ConfigService } from '@nestjs/config';
 import { Pool } from 'pg';
 import { drizzle, NodePgDatabase } from 'drizzle-orm/node-postgres';
-import * as userSchema  from 'src/student/entities/schema';
-import * as sessionSchema from 'src/session/entities/schema'
+import * as studentSchema  from 'src/student/schema/schema';
+import * as sessionSchema from 'src/session/schema/schema'
+import * as termSchema from 'src/terms/schema/schema'
+import * as classSchema from 'src/class/schema/schema'
+import * as standardFeeSchema from 'src/standard_fees/schema/schema'
+import * as paymentSchema from 'src/payments/schema/schema'
+
 
 @Module({
     providers:[
@@ -16,8 +21,13 @@ import * as sessionSchema from 'src/session/entities/schema'
                 })
                return drizzle(pool, {
                     schema: {
-                        ... userSchema,
+
+                        ... studentSchema,
                         ... sessionSchema,
+                        ... termSchema,
+                        ... classSchema,
+                        ... standardFeeSchema,
+                        ... paymentSchema
                     },
                 })
             },

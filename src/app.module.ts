@@ -4,6 +4,11 @@ import { StudentModule } from './student/student.module';
 import { SessionModule } from './session/session.module';
 import { DatabaseModule } from './database/database.module';
 import { ConfigModule } from '@nestjs/config';
+import { TermsModule } from './terms/terms.module';
+import { StandardFeesModule } from './standard_fees/standard_fees.module';
+import { ExtraFeesModule } from './extra_fees/extra_fees.module';
+import { PaymentsModule } from './payments/payments.module';
+import { ClassModule } from './class/class.module';
 
 @Module({
   imports: [  
@@ -13,7 +18,7 @@ import { ConfigModule } from '@nestjs/config';
     AuthModule, 
     StudentModule, 
     SessionModule, 
-    DatabaseModule, ],
+    DatabaseModule, TermsModule, StandardFeesModule, ExtraFeesModule, PaymentsModule, ClassModule, ],
   controllers: [],
   providers: [],
 })

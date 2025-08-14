@@ -3,7 +3,7 @@ import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
 import { DATABASE_CONNECTION } from 'src/database/database-connection';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import * as schema from './entities/schema';
+import * as schema from './schema/schema';
 import { desc, eq } from 'drizzle-orm';
 
 @Injectable()
@@ -24,13 +24,13 @@ export class StudentService {
     if (student.length > 0){
       throw new ConflictException("Student with admission number already exists");
     }
-    let admission_no = await this.generateAdmissionNumber()
+    
     const created = await this.db
                               .insert(schema.students)
                               .values({
                                 firstName: dto.first_name,
                                 lastName: dto.last_name,
-                                admissionNumber: admission_no,
+                                admissionNumber: dto.admission_number,
                                 guardianName: dto.guardian_name,
                                 guardianPhoneNumber: dto.guardian_phone_number
                               })
@@ -88,27 +88,27 @@ export class StudentService {
 
  
   
-  private async  generateAdmissionNumber(): Promise<string> {
+//   private async  generateAdmissionNumber(): Promise<string> {
   
-    const latest = await this.db
-      .select({ admissionNumber: schema.students.admissionNumber })
-      .from(schema.students)
-      .orderBy(desc(schema.students.admissionNumber))
-      .limit(1);
+//     const latest = await this.db
+//       .select({ admissionNumber: schema.students.admissionNumber })
+//       .from(schema.students)
+//       .orderBy(desc(schema.students.admissionNumber))
+//       .limit(1);
 
-    const currentYear = new Date().getFullYear();
-    const prefix = `ELG${currentYear}`;
+//     const currentYear = new Date().getFullYear();
+//     const prefix = `ELG${currentYear}`;
 
-    let nextNumber = 1;
+//     let nextNumber = 1;
 
-    if (latest.length > 0 && latest[0].admissionNumber?.startsWith(prefix)) {
-      const last = latest[0].admissionNumber;
-      const numericPart = parseInt(last.slice(prefix.length), 10);
-      nextNumber = numericPart + 1;
-  }
+//     if (latest.length > 0 && latest[0].admissionNumber?.startsWith(prefix)) {
+//       const last = latest[0].admissionNumber;
+//       const numericPart = parseInt(last.slice(prefix.length), 10);
+//       nextNumber = numericPart + 1;
+//   }
 
-  const padded = String(nextNumber).padStart(4, '0');
-  return `${prefix}${padded}`;
-}
+//   const padded = String(nextNumber).padStart(4, '0');
+//   return `${prefix}${padded}`;
+// }
  
 }

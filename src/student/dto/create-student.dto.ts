@@ -10,7 +10,7 @@ export enum Status {
 
 export class CreateStudentDto {
   @IsString()
-  @Optional()
+  @IsNotEmpty()
   admission_number: string;
 
   @IsString()

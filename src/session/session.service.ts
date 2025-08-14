@@ -3,7 +3,7 @@ import { CreateSessionDto } from './dto/create-session.dto';
 import { UpdateSessionDto } from './dto/update-session.dto';
 import { DATABASE_CONNECTION } from 'src/database/database-connection';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import * as schema from 'src/session/entities/schema';  
+import * as schema from 'src/session/schema/schema';  
 import { sql, eq } from 'drizzle-orm';
 
 @Injectable()
